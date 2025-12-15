@@ -6,8 +6,19 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Einner16/LK-BOT-ACTIVITIES.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Einner16/LK-BOT-ACTIVITIES/issues"
+  },
+  "homepage": "https://github.com/Einner16/LK-BOT-ACTIVITIES#readme",
+  "dependencies": {
+    "discord.js": "^14.25.1"
+  }
 }
