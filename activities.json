@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Reparto aéreo",
+    "time": "21:00",
+    "description": "Actividad de reparto aéreo disponible"
+  },
+  {
+    "name": "Reparto aéreo",
+    "time": "22:00",
+    "description": "Actividad de reparto aéreo disponible"
+  },
+  {
+    "name": "Reparto aéreo",
+    "time": "17:00",
+    "description": "Actividad de reparto aéreo disponible"
+  },
+  {
+    "name": "Asalto al almacén",
+    "time": "20:00",
+    "description": "Actividad de asalto al almacén disponible"
+  },
+  {
+    "name": "Asalto al almacén",
+    "time": "15:00",
+    "description": "Actividad de asalto al almacén disponible"
+  },
+  {
+    "name": "Asalto al almacén",
+    "time": "16:00",
+    "description": "Actividad de asalto al almacén disponible"
+  },
+  {
+    "name": "Asalto al almacén",
+    "time": "17:00",
+    "description": "Actividad de asalto al almacén disponible"
+  },
+  {
+    "name": "Robo de vehículo",
+    "time": "20:00",
+    "description": "Actividad de robo de vehículo disponible"
+  },
+  {
+    "name": "Robo de vehículo",
+    "time": "12:00",
+    "description": "Actividad de robo de vehículo disponible"
+  },
+  {
+    "name": "Robo de vehículo",
+    "time": "14:00",
+    "description": "Actividad de robo de vehículo disponible"
+  }
+]
