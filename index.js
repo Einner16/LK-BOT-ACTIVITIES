@@ -15,8 +15,8 @@ const client = new Client({
 
 const activities = require("./activities.json");
 
-const CHANNEL_ID = "1448834163078729778";
-const ROLE_ID = "1417674311203815559";
+const CHANNEL_ID = "1464711416610029781";
+const ROLE_ID = "1464711553625489638";
 
 /* ================= READY ================= */
 client.once("clientReady", () => {
@@ -46,7 +46,7 @@ client.on("interactionCreate", async (interaction) => {
       const completedEmbed = EmbedBuilder.from(oldEmbed)
         .setColor("#2ecc71")
         .setDescription(
-          `✅ **Actividad de ${oldEmbed.title} ha sido completada por ${interaction.user}**`
+          `✅ **Actividad de ${oldEmbed.title} ha sido completada por ${interaction.user}**`,
         );
 
       await interaction.message.edit({
@@ -97,7 +97,7 @@ async function sendActivityEmbed(interaction, activity, isTest) {
     new ButtonBuilder()
       .setCustomId(`complete_${activity.name}`)
       .setLabel("Marcar como completada")
-      .setStyle(ButtonStyle.Success)
+      .setStyle(ButtonStyle.Success),
   );
 
   if (isTest) {
