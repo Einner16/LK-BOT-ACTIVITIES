@@ -96,6 +96,7 @@ const embed = new EmbedBuilder()
     value: `**${activity.time}**`,
     inline: true
   })
+.setImage('${activity.image)')
   .setTimestamp()
   .setFooter({ text: "Sistema de actividades" });
 
