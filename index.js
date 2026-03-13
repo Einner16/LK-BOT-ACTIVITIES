@@ -96,18 +96,20 @@ const embed = new EmbedBuilder()
     value: `**${activity.time}**`,
     inline: true
   })
-  .setImage(activity.image)
   .setTimestamp()
-  .setFooter({
-    text: "Sistema de actividades"
-  });
+  .setFooter({ text: "Sistema de actividades" });
 
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`complete_${activity.name}`)
-      .setLabel("Marcar como completada")
-      .setStyle(ButtonStyle.Success),
-  );
+if (activity.image) {
+  embed.setImage(activity.image);
+}
+
+const row = new ActionRowBuilder().addComponents(
+  new ButtonBuilder()
+    .setCustomId(`complete_${activity.name}`)
+    .setLabel("Completar actividad")
+    .setEmoji("✅")
+    .setStyle(ButtonStyle.Success)
+);
 
   if (isTest) {
     await interaction.reply({
