@@ -2,51 +2,61 @@
   {
     "name": "Reparto aéreo",
     "time": "21:00",
-    "description": "Actividad de reparto aéreo disponible"
+    "description": "Actividad de reparto aéreo disponible",
+    "image": "https://png.pngtree.com/png-vector/20221127/ourmid/pngtree-cartoon-airdrop-png-image_6481731.png"
   },
   {
     "name": "Reparto aéreo",
     "time": "22:00",
-    "description": "Actividad de reparto aéreo disponible"
+    "description": "Actividad de reparto aéreo disponible",
+    "image": "https://png.pngtree.com/png-vector/20221127/ourmid/pngtree-cartoon-airdrop-png-image_6481731.png"
   },
   {
     "name": "Reparto aéreo",
     "time": "17:00",
-    "description": "Actividad de reparto aéreo disponible"
+    "description": "Actividad de reparto aéreo disponible",
+    "image": "https://png.pngtree.com/png-vector/20221127/ourmid/pngtree-cartoon-airdrop-png-image_6481731.png"
   },
   {
     "name": "Asalto al almacén",
     "time": "20:00",
-    "description": "Actividad de asalto al almacén disponible"
+    "description": "Actividad de asalto al almacén disponible",
+    "image": "https://images.vexels.com/media/users/3/153031/isolated/preview/591743b938b62e96529fa59152e69bd5-monitor-de-robo-de-personajes-bandidos.png"
   },
   {
     "name": "Asalto al almacén",
     "time": "15:00",
-    "description": "Actividad de asalto al almacén disponible"
+    "description": "Actividad de asalto al almacén disponible",
+    "image": "https://images.vexels.com/media/users/3/153031/isolated/preview/591743b938b62e96529fa59152e69bd5-monitor-de-robo-de-personajes-bandidos.png"
   },
   {
     "name": "Asalto al almacén",
     "time": "16:00",
-    "description": "Actividad de asalto al almacén disponible"
+    "description": "Actividad de asalto al almacén disponible",
+    "image": "https://images.vexels.com/media/users/3/153031/isolated/preview/591743b938b62e96529fa59152e69bd5-monitor-de-robo-de-personajes-bandidos.png"
   },
   {
     "name": "Asalto al almacén",
     "time": "17:00",
-    "description": "Actividad de asalto al almacén disponible"
+    "description": "Actividad de asalto al almacén disponible",
+    "image": "https://images.vexels.com/media/users/3/153031/isolated/preview/591743b938b62e96529fa59152e69bd5-monitor-de-robo-de-personajes-bandidos.png"
   },
   {
     "name": "Robo de vehículo",
     "time": "20:00",
-    "description": "Actividad de robo de vehículo disponible"
+    "description": "Actividad de robo de vehículo disponible",
+    "image": "https://cdn-icons-png.flaticon.com/512/4351/4351114.png"
   },
   {
     "name": "Robo de vehículo",
     "time": "12:00",
-    "description": "Actividad de robo de vehículo disponible"
+    "description": "Actividad de robo de vehículo disponible",
+    "image": "https://cdn-icons-png.flaticon.com/512/4351/4351114.png"
   },
   {
     "name": "Robo de vehículo",
     "time": "14:00",
-    "description": "Actividad de robo de vehículo disponible"
+    "description": "Actividad de robo de vehículo disponible",
+    "image": "https://cdn-icons-png.flaticon.com/512/4351/4351114.png"
   }
 ]
