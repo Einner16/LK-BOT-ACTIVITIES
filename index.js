@@ -87,11 +87,20 @@ async function checkActivities() {
 
 /* ================= SEND EMBED ================= */
 async function sendActivityEmbed(interaction, activity, isTest) {
-  const embed = new EmbedBuilder()
-    .setColor("#0099ff")
-    .setTitle(activity.name)
-    .setDescription("🕒 **Actividad disponible**")
-    .setFooter({ text: `Horario: ${activity.time}` });
+const embed = new EmbedBuilder()
+  .setColor("#0099ff")
+  .setTitle(`🚨 ${activity.name}`)
+  .setDescription(`📢 **${activity.description}**`)
+  .addFields({
+    name: "🕒 Horario",
+    value: `**${activity.time}**`,
+    inline: true
+  })
+  .setImage(activity.image)
+  .setTimestamp()
+  .setFooter({
+    text: "Sistema de actividades"
+  });
 
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
