@@ -96,10 +96,11 @@ const embed = new EmbedBuilder()
     value: `**${activity.time}**`,
     inline: true
   })
-.setImage('activity.image')
+  .setImage(activity.image)
   .setTimestamp()
-  .setFooter({ text: "Sistema de actividades" });
-
+  .setFooter({
+    text: "Sistema de actividades"
+  });
 const row = new ActionRowBuilder().addComponents(
   new ButtonBuilder()
     .setCustomId(`complete_${activity.name}`)
