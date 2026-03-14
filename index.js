@@ -26,33 +26,37 @@ client.once("clientReady", () => {
 
 /* ================= INTERACTIONS ================= */
 client.on("interactionCreate", async (interaction) => {
-  /* SLASH COMMAND */
+
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === "testactivity") {
-      const activity = activities[0]; // actividad de prueba
+
+      const activity =
+        activities[Math.floor(Math.random() * activities.length)];
+
       await sendActivityEmbed(interaction, activity, true);
     }
   }
 
-  /* BUTTON */
   if (interaction.isButton()) {
     await interaction.deferUpdate();
 
     try {
       const oldEmbed = interaction.message.embeds[0];
-
       if (!oldEmbed) return;
+
+      const activityName = oldEmbed.title.replace("🚨 ", "");
 
       const completedEmbed = EmbedBuilder.from(oldEmbed)
         .setColor("#2ecc71")
         .setDescription(
-          `✅ **Actividad de ${oldEmbed.title} ha sido completada por ${interaction.user}**`,
+          `✅ **Actividad de ${activityName} ha sido completada por ${interaction.user}**`
         );
 
       await interaction.message.edit({
         embeds: [completedEmbed],
         components: [],
       });
+
     } catch (err) {
       if (err.code === 10008) {
         return interaction.followUp({
@@ -63,6 +67,7 @@ client.on("interactionCreate", async (interaction) => {
       console.error(err);
     }
   }
+
 });
 
 /* ================= CHECK ACTIVITIES ================= */
