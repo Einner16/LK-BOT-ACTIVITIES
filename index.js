@@ -24,19 +24,33 @@ const ROLE_ID                = process.env.ROLE_ID;
 const LEADERBOARD_CHANNEL_ID = process.env.LEADERBOARD_CHANNEL_ID || CHANNEL_ID;
 
 // ─── MONGODB ───────────────────────────
-const mongoClient = new MongoClient(process.env.MONGO_URI);
+const mongoClient = new MongoClient(process.env.MONGO_URI, {
+  serverSelectionTimeoutMS: 5000
+});
+
 let db;
 
 async function connectDB() {
-  await mongoClient.connect();
-  db = mongoClient.db("discordBot");
-  console.log("🔥 MongoDB conectado");
+  try {
+    if (!process.env.MONGO_URI) {
+      throw new Error("❌ MONGO_URI no está definida");
+    }
+
+    console.log("⏳ Conectando a MongoDB...");
+    await mongoClient.connect();
+
+    db = mongoClient.db("discordBot");
+
+    console.log("🔥 MongoDB conectado correctamente");
+  } catch (error) {
+    console.error("❌ Error conectando a MongoDB:", error);
+  }
 }
 
 // ─── DB FUNCIONES ──────────────────────
-
-// Guardar actividad (UNA por click)
 async function registrarCompletacion(user) {
+  if (!db) return console.error("❌ DB no inicializada");
+
   const collection = db.collection("activityLogs");
 
   await collection.insertOne({
@@ -50,17 +64,16 @@ async function registrarCompletacion(user) {
 function getWeekRange() {
   const now = new Date();
 
-  // Ajuste Colombia (UTC-5)
   const colombiaNow = new Date(now.getTime() - (5 * 60 * 60 * 1000));
 
-  const day = colombiaNow.getDay(); // 0 domingo
+  const day = colombiaNow.getDay();
   const diffToSaturday = (day + 1) % 7;
 
   const saturday = new Date(colombiaNow);
   saturday.setDate(colombiaNow.getDate() - diffToSaturday);
   saturday.setHours(19, 0, 0, 0);
 
-  const start = new Date(saturday.getTime() + (5 * 60 * 60 * 1000)); // volver a UTC
+  const start = new Date(saturday.getTime() + (5 * 60 * 60 * 1000));
   const end = new Date(start);
   end.setDate(start.getDate() + 7);
 
@@ -69,11 +82,16 @@ function getWeekRange() {
 
 // TOP semanal REAL
 async function getWeeklyTop() {
+  if (!db) {
+    console.error("❌ DB no inicializada");
+    return [];
+  }
+
   const { start, end } = getWeekRange();
 
   const collection = db.collection("activityLogs");
 
-  const top = await collection.aggregate([
+  return await collection.aggregate([
     {
       $match: {
         createdAt: { $gte: start, $lt: end }
@@ -86,15 +104,9 @@ async function getWeeklyTop() {
         username: { $last: "$username" }
       }
     },
-    {
-      $sort: { count: -1 }
-    },
-    {
-      $limit: 10
-    }
+    { $sort: { count: -1 } },
+    { $limit: 10 }
   ]).toArray();
-
-  return top;
 }
 
 // ─── READY ─────────────────────────────
@@ -102,6 +114,10 @@ client.once("clientReady", async () => {
   console.log(`✅ ${client.user.tag} listo`);
 
   await connectDB();
+
+  if (!db) {
+    console.log("⚠️ Bot iniciado SIN base de datos");
+  }
 
   setInterval(checkActivities, 60 * 1000);
 });
@@ -176,7 +192,6 @@ async function checkActivities() {
     }
   }
 
-  // Enviar top semanal automáticamente
   const utcDay = now.getUTCDay();
   const utcH = now.getUTCHours();
   const utcM = now.getUTCMinutes();
@@ -261,14 +276,8 @@ async function sendActivityEmbed(interaction, activity, isTest) {
 
 // ─── COMMANDS ─────────────────────────
 const commands = [
-  {
-    name: "testactivity",
-    description: "Simula una actividad",
-  },
-  {
-    name: "topleaderboard",
-    description: "Ver top semanal",
-  },
+  { name: "testactivity", description: "Simula una actividad" },
+  { name: "topleaderboard", description: "Ver top semanal" },
 ];
 
 const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
