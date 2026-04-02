@@ -560,4 +560,158 @@ client.on("interactionCreate", async (interaction) => {
     const msgId = interaction.message.id;
 
     // ── Protección anti race-condition ──
-    // Node.js es sing
+    // Node.js es single-threaded: add() ocurre sincrónicamente antes de cualquier
+    // await, por lo que dos handlers simultáneos no pueden pasar esta barrera.
+    if (processingMessages.has(msgId)) return;
+    processingMessages.add(msgId);
+
+    try {
+      // Si ya no hay componentes → la actividad fue completada por otra persona
+      if (interaction.message.components.length === 0) return;
+
+      const embed = interaction.message.embeds[0];
+      if (!embed) return;
+
+      const activityName = embed.title.replace("🚨 ", "");
+
+      const completedEmbed = EmbedBuilder.from(embed)
+        .setColor("#2ecc71")
+        .setDescription(`✅ **Actividad de ${activityName} completada por ${interaction.user}**`);
+
+      await interaction.message.edit({ embeds: [completedEmbed], components: [] });
+      await registrarCompletacion(interaction.user, activityName);
+
+      await sendLog(
+        "✅ Actividad completada",
+        `**Usuario:** ${interaction.user} (\`${interaction.user.tag}\`)\n` +
+        `**Actividad:** ${activityName}\n` +
+        `**Canal:** <#${interaction.channelId}>`,
+        "#2ecc71"
+      );
+
+      console.log(`[+1] ${interaction.user.tag} → ${activityName}`);
+
+    } catch (err) {
+      if (err.code === 10008) {
+        // El mensaje ya no existe (bot fue reiniciado entre que se envió y se clickeó)
+        return interaction.followUp({
+          content: "⚠️ Esta actividad ya no es válida porque el bot fue reiniciado.",
+          flags:   MessageFlags.Ephemeral,
+        });
+      }
+      console.error("[Botón] Error inesperado:", err);
+    } finally {
+      // Siempre libera el lock, incluso si hubo error
+      processingMessages.delete(msgId);
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CHECK ACTIVITIES — se ejecuta cada 60 segundos
+// ─────────────────────────────────────────────────────────────────────────────
+async function checkActivities() {
+  const now = new Date();
+
+  // Hora Colombia (UTC−5, sin DST)
+  let hours     = now.getUTCHours() - 5;
+  const minutes = now.getUTCMinutes();
+  if (hours < 0) hours += 24;
+
+  // Actividades programadas del día
+  for (const activity of activities) {
+    const [h, m] = activity.time.split(":").map(Number);
+    if (hours === h && minutes === m) {
+      await sendActivityEmbed(null, activity, false);
+    }
+  }
+
+  // ── Leaderboard semanal automático ──
+  // Sábado 7PM COL = Domingo 00:00 UTC
+  // Consultamos la semana ANTERIOR (ya cerrada) antes de que getWeekRange() la ruede
+  if (now.getUTCDay() === 0 && now.getUTCHours() === 0 && now.getUTCMinutes() === 0) {
+    const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+    const { start: currentStart } = getWeekRange(); // domingo actual 00:00 UTC
+    const prevStart = new Date(currentStart.getTime() - WEEK_MS);
+    const prevEnd   = currentStart;
+
+    try {
+      const top     = await getWeeklyTop(prevStart, prevEnd);
+      const channel = await client.channels.fetch(LEADERBOARD_CHANNEL_ID);
+
+      await channel.send({ embeds: [buildLeaderboardEmbed(top, prevStart, prevEnd, false)] });
+      await guardarTopSemanal(top, prevStart, prevEnd); // guardar DESPUÉS de enviar
+      await sendLog(
+        "📊 Leaderboard semanal enviado y guardado",
+        `Semana cerrada con **${top.length}** participante${top.length !== 1 ? "s" : ""}.`,
+        "#f1c40f"
+      );
+    } catch (err) {
+      console.error("[Leaderboard semanal]", err);
+      await sendLog("❌ Error en leaderboard semanal", `\`\`\`${err.message}\`\`\``, "#e74c3c");
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEND ACTIVITY EMBED
+// ─────────────────────────────────────────────────────────────────────────────
+async function sendActivityEmbed(interaction, activity, isTest) {
+  const embed = new EmbedBuilder()
+    .setColor("#0099ff")
+    .setTitle(`🚨 ${activity.name}`)
+    .setDescription(`📢 **${activity.description}**`)
+    .addFields({ name: "🕒 Horario", value: `**${activity.time}**`, inline: true })
+    .setImage(activity.image);
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`complete_${activity.name}_${activity.time}`)
+      .setLabel("Completar actividad")
+      .setEmoji("✅")
+      .setStyle(ButtonStyle.Success)
+  );
+
+  if (isTest) {
+    await interaction.reply({ content: "🧪 Test", embeds: [embed], components: [row] });
+  } else {
+    const ch = await client.channels.fetch(CHANNEL_ID);
+    await ch.send({ content: `<@&${ROLE_ID}>`, embeds: [embed], components: [row] });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENVIAR LEADERBOARD (usado por /topleaderboard)
+// ─────────────────────────────────────────────────────────────────────────────
+async function enviarLeaderboard(channel, isPreview) {
+  const { start, end } = getWeekRange();
+  const top = await getWeeklyTop(start, end);
+  await channel.send({ embeds: [buildLeaderboardEmbed(top, start, end, isPreview)] });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SLASH COMMANDS REGISTER
+// ─────────────────────────────────────────────────────────────────────────────
+const commands = [
+  { name: "testactivity",         description: "Simula una actividad en curso (prueba)" },
+  { name: "topleaderboard",       description: "Ver el top semanal actual (requiere rol)" },
+  { name: "misactividades",       description: "Ver tus estadísticas personales de actividades" },
+  { name: "resetleaderboard",     description: "Reset de emergencia del leaderboard (solo owner)" },
+  { name: "historialleaderboard", description: "Explorar el historial de tops semanales anteriores" },
+];
+
+const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
+
+(async () => {
+  try {
+    await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), { body: commands });
+    console.log("✅ Slash commands registrados");
+  } catch (err) {
+    console.error("❌ Error registrando commands:", err);
+  }
+})();
+
+client.on("error", console.error);
+process.on("unhandledRejection", console.error);
+
+client.login(process.env.DISCORD_TOKEN);
